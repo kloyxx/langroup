@@ -2,18 +2,23 @@
 
 import { Menu, X } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { navigation } from "@/lib/content";
+import type { Copy } from "@/lib/content";
+import { languageOptions, languagePath, languages, sectionIds, type Language, type SectionId } from "@/lib/locales";
 
-type SectionId = (typeof navigation)[number]["id"];
+type HeaderProps = {
+  brand: ReactNode;
+  language: Language;
+  text: Copy["navigation"];
+};
 
-export function Header({ brand }: { brand: ReactNode }) {
+export function Header({ brand, language, text }: HeaderProps) {
   const [active, setActive] = useState<SectionId>("home");
   const [isOpen, setOpen] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
   const header = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const sections = navigation.flatMap(({ id }) => {
+    const sections = sectionIds.flatMap((id) => {
       const element = document.getElementById(id);
       return element ? [{ id, element }] : [];
     });
@@ -48,7 +53,7 @@ export function Header({ brand }: { brand: ReactNode }) {
 
   useEffect(() => {
     if (!isOpen) return;
-    const desktop = window.matchMedia("(min-width: 860px)");
+    const desktop = window.matchMedia("(min-width: 960px)");
     const closeOnWideScreen = () => {
       if (desktop.matches) setOpen(false);
     };
@@ -81,16 +86,30 @@ export function Header({ brand }: { brand: ReactNode }) {
     <header ref={header} className="site-header">
       <div className="container header-inner">
         <div className="header-brand">{brand}</div>
-        <nav className="desktop-nav" aria-label="Основная навигация">
-          {navigation.map(({ id, label }) => (
+        <nav className="desktop-nav" aria-label={text.primary}>
+          {sectionIds.map((id) => (
             <a key={id} href={`#${id}`} aria-current={active === id ? "location" : undefined}>
-              {label}
+              {text.labels[id]}
             </a>
           ))}
         </nav>
         <div className="header-actions">
+          <nav className="language-switch" aria-label={text.siteLanguage}>
+            {languageOptions.map((option) => (
+              <a
+                key={option}
+                href={languagePath(option) + (active === "home" ? "" : `#${active}`)}
+                hrefLang={option}
+                lang={option}
+                aria-label={languages[option].label}
+                aria-current={option === language ? "page" : undefined}
+              >
+                {option.toUpperCase()}
+              </a>
+            ))}
+          </nav>
           <a href="#contacts" className="button button-primary header-cta" onClick={() => focusSection("contacts")}>
-            Связаться
+            {text.contact}
           </a>
           <button
             type="button"
@@ -98,23 +117,23 @@ export function Header({ brand }: { brand: ReactNode }) {
             ref={menuButton}
             aria-controls="mobile-navigation"
             aria-expanded={isOpen}
-            aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
+            aria-label={isOpen ? text.menuClose : text.menuOpen}
             onClick={() => setOpen(!isOpen)}
           >
             {isOpen ? <X size={23} /> : <Menu size={23} />}
           </button>
         </div>
       </div>
-      <nav id="mobile-navigation" className="mobile-nav" aria-label="Мобильная навигация" hidden={!isOpen}>
+      <nav id="mobile-navigation" className="mobile-nav" aria-label={text.mobile} hidden={!isOpen}>
         <div className="container mobile-nav-links">
-          {navigation.map(({ id, label }) => (
+          {sectionIds.map((id) => (
             <a
               key={id}
               href={`#${id}`}
               aria-current={active === id ? "location" : undefined}
               onClick={() => focusSection(id)}
             >
-              {label}
+              {text.labels[id]}
             </a>
           ))}
         </div>

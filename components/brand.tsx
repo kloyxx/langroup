@@ -1,9 +1,9 @@
 import Image from "next/image";
 import { publicPath } from "@/lib/site-url";
 
-export function Brand({ footer = false }: { footer?: boolean }) {
+export function Brand({ homeLabel, footer = false }: { homeLabel: string; footer?: boolean }) {
   return (
-    <a className="brand" href="#home" aria-label="LANGROUP — главная">
+    <a className="brand" href="#home" aria-label={`LANGROUP — ${homeLabel}`}>
       <Image
         src={publicPath("/images/logo.webp")}
         width={420}

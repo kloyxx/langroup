@@ -1,8 +1,16 @@
 import type { MetadataRoute } from "next";
-import { site } from "@/lib/content";
+import { languageOptions, languageUrl } from "@/lib/locales";
 
 export const dynamic = "force-static";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return [{ url: site.url.href }];
+  const languages = {
+    "ru-UZ": languageUrl("ru").href,
+    "uz-UZ": languageUrl("uz").href,
+  };
+
+  return languageOptions.map((language) => ({
+    url: languageUrl(language).href,
+    alternates: { languages },
+  }));
 }
